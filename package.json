@@ -1,0 +1,24 @@
+{
+  "name": "tree-sitter-satysfi",
+  "version": "0.0.0",
+  "description": "SATySFi grammar for tree-sitter",
+  "main": "index.js",
+  "keywords": [
+    "parser",
+    "lexer"
+  ],
+  "author": "Yudai Nakata",
+  "license": "MIT",
+  "dependencies": {
+    "nan": "2.x"
+  },
+  "devDependencies": {
+    "tree-sitter-cli": "0.10.x",
+    "node-gyp": "3.6.x"
+  },
+  "scripts": {
+    "build": "tree-sitter generate && node-gyp build",
+    "test": "tree-sitter test && tree-sitter parse examples --quiet --time"
+  },
+  "repository": "https://github.com/yudai-nkt/tree-sitter-satysfi"
+}
