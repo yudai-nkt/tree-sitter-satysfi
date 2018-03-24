@@ -1,9 +1,136 @@
 {
   "name": "satysfi",
   "rules": {
-    "identifier": {
+    "space": {
       "type": "PATTERN",
-      "value": "[a-z][-a-zA-Z0-9]*"
+      "value": "[ \\t]"
+    },
+    "break": {
+      "type": "PATTERN",
+      "value": "[\\n\\r]"
+    },
+    "nonbreak": {
+      "type": "PATTERN",
+      "value": "[^\\n\\r]"
+    },
+    "nzdigit": {
+      "type": "PATTERN",
+      "value": "[1-9]"
+    },
+    "digit": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "0"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "nzdigit"
+        }
+      ]
+    },
+    "hex": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "digit"
+        },
+        {
+          "type": "PATTERN",
+          "value": "[A-F]"
+        }
+      ]
+    },
+    "capital": {
+      "type": "PATTERN",
+      "value": "[A-Z]"
+    },
+    "small": {
+      "type": "PATTERN",
+      "value": "[a-z]"
+    },
+    "latin": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "small"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "capital"
+        }
+      ]
+    },
+    "item": {
+      "type": "REPEAT1",
+      "content": {
+        "type": "STRING",
+        "value": "*"
+      }
+    },
+    "identifier": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "small"
+        },
+        {
+          "type": "REPEAT",
+          "content": {
+            "type": "SYMBOL",
+            "name": "digit"
+          }
+        }
+      ]
+    },
+    "constructor": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "capital"
+        },
+        {
+          "type": "REPEAT",
+          "content": {
+            "type": "SYMBOL",
+            "name": "digit"
+          }
+        }
+      ]
+    },
+    "symbol": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "PATTERN",
+          "value": "[ -@]"
+        },
+        {
+          "type": "PATTERN",
+          "value": "[[-`]"
+        },
+        {
+          "type": "PATTERN",
+          "value": "[{-~]"
+        }
+      ]
+    },
+    "opsymbol": {
+      "type": "PATTERN",
+      "value": "[-+*\\/^&|!:=<>~'.?]"
+    },
+    "str": {
+      "type": "PATTERN",
+      "value": "[^ \\t\\n\\r@`\\\\{}<>%|*$#;]"
+    },
+    "mathsymbol": {
+      "type": "PATTERN",
+      "value": "[-+*\\/:=<>~'.,?`]"
     },
     "comment": {
       "type": "PATTERN",

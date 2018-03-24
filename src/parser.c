@@ -7,23 +7,25 @@
 
 #define LANGUAGE_VERSION 6
 #define STATE_COUNT 4
-#define SYMBOL_COUNT 4
+#define SYMBOL_COUNT 5
 #define ALIAS_COUNT 0
-#define TOKEN_COUNT 3
+#define TOKEN_COUNT 4
 #define EXTERNAL_TOKEN_COUNT 0
 #define MAX_ALIAS_SEQUENCE_LENGTH 0
 
 enum {
-  aux_sym_SLASH_LBRACKa_DASHz_RBRACK_LBRACK_DASHa_DASHzA_DASHZ0_DASH9_RBRACK_STAR_SLASH = 1,
-  sym_comment = 2,
-  sym_identifier = 3,
+  aux_sym_SLASH_LBRACK_BSLASHt_RBRACK_SLASH = 1,
+  sym_mathsymbol = 2,
+  sym_comment = 3,
+  sym_space = 4,
 };
 
 static const char *ts_symbol_names[] = {
   [ts_builtin_sym_end] = "END",
-  [aux_sym_SLASH_LBRACKa_DASHz_RBRACK_LBRACK_DASHa_DASHzA_DASHZ0_DASH9_RBRACK_STAR_SLASH] = "/[a-z][-a-zA-Z0-9]*/",
+  [aux_sym_SLASH_LBRACK_BSLASHt_RBRACK_SLASH] = "/[ \\t]/",
+  [sym_mathsymbol] = "mathsymbol",
   [sym_comment] = "comment",
-  [sym_identifier] = "identifier",
+  [sym_space] = "space",
 };
 
 static const TSSymbolMetadata ts_symbol_metadata[] = {
@@ -31,15 +33,19 @@ static const TSSymbolMetadata ts_symbol_metadata[] = {
     .visible = false,
     .named = true,
   },
-  [aux_sym_SLASH_LBRACKa_DASHz_RBRACK_LBRACK_DASHa_DASHzA_DASHZ0_DASH9_RBRACK_STAR_SLASH] = {
+  [aux_sym_SLASH_LBRACK_BSLASHt_RBRACK_SLASH] = {
     .visible = false,
     .named = false,
+  },
+  [sym_mathsymbol] = {
+    .visible = true,
+    .named = true,
   },
   [sym_comment] = {
     .visible = true,
     .named = true,
   },
-  [sym_identifier] = {
+  [sym_space] = {
     .visible = true,
     .named = true,
   },
@@ -58,7 +64,12 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
           lookahead == '\r' ||
           lookahead == ' ')
         SKIP(0);
-      if (('a' <= lookahead && lookahead <= 'z'))
+      if (lookahead == '\'' ||
+          ('*' <= lookahead && lookahead <= '/') ||
+          lookahead == ':' ||
+          ('<' <= lookahead && lookahead <= '?') ||
+          lookahead == '`' ||
+          lookahead == '~')
         ADVANCE(3);
       END_STATE();
     case 1:
@@ -71,12 +82,31 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
         ADVANCE(2);
       END_STATE();
     case 3:
-      ACCEPT_TOKEN(aux_sym_SLASH_LBRACKa_DASHz_RBRACK_LBRACK_DASHa_DASHzA_DASHZ0_DASH9_RBRACK_STAR_SLASH);
-      if (lookahead == '-' ||
-          ('0' <= lookahead && lookahead <= '9') ||
-          ('A' <= lookahead && lookahead <= 'Z') ||
-          ('a' <= lookahead && lookahead <= 'z'))
-        ADVANCE(3);
+      ACCEPT_TOKEN(sym_mathsymbol);
+      END_STATE();
+    case 4:
+      if (lookahead == '%')
+        ADVANCE(2);
+      if (lookahead == '\t' ||
+          lookahead == ' ')
+        ADVANCE(5);
+      if (lookahead == '\n' ||
+          lookahead == '\r')
+        SKIP(4);
+      END_STATE();
+    case 5:
+      ACCEPT_TOKEN(aux_sym_SLASH_LBRACK_BSLASHt_RBRACK_SLASH);
+      END_STATE();
+    case 6:
+      if (lookahead == 0)
+        ADVANCE(1);
+      if (lookahead == '%')
+        ADVANCE(2);
+      if (lookahead == '\t' ||
+          lookahead == '\n' ||
+          lookahead == '\r' ||
+          lookahead == ' ')
+        SKIP(6);
       END_STATE();
     default:
       return false;
@@ -85,40 +115,40 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
 
 static TSLexMode ts_lex_modes[STATE_COUNT] = {
   [0] = {.lex_state = 0},
-  [1] = {.lex_state = 0},
-  [2] = {.lex_state = 0},
-  [3] = {.lex_state = 0},
+  [1] = {.lex_state = 4},
+  [2] = {.lex_state = 6},
+  [3] = {.lex_state = 6},
 };
 
 static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
   [0] = {
     [ts_builtin_sym_end] = ACTIONS(1),
-    [aux_sym_SLASH_LBRACKa_DASHz_RBRACK_LBRACK_DASHa_DASHzA_DASHZ0_DASH9_RBRACK_STAR_SLASH] = ACTIONS(3),
-    [sym_comment] = ACTIONS(5),
+    [sym_mathsymbol] = ACTIONS(1),
+    [sym_comment] = ACTIONS(3),
   },
   [1] = {
-    [sym_identifier] = STATE(3),
-    [aux_sym_SLASH_LBRACKa_DASHz_RBRACK_LBRACK_DASHa_DASHzA_DASHZ0_DASH9_RBRACK_STAR_SLASH] = ACTIONS(8),
-    [sym_comment] = ACTIONS(10),
+    [sym_space] = STATE(3),
+    [aux_sym_SLASH_LBRACK_BSLASHt_RBRACK_SLASH] = ACTIONS(6),
+    [sym_comment] = ACTIONS(8),
   },
   [2] = {
-    [ts_builtin_sym_end] = ACTIONS(12),
-    [sym_comment] = ACTIONS(10),
+    [ts_builtin_sym_end] = ACTIONS(10),
+    [sym_comment] = ACTIONS(12),
   },
   [3] = {
     [ts_builtin_sym_end] = ACTIONS(14),
-    [sym_comment] = ACTIONS(10),
+    [sym_comment] = ACTIONS(12),
   },
 };
 
 static TSParseActionEntry ts_parse_actions[] = {
   [0] = {.count = 0, .reusable = false, .depends_on_lookahead = false},
   [1] = {.count = 1, .reusable = true, .depends_on_lookahead = false}, RECOVER(),
-  [3] = {.count = 1, .reusable = true, .depends_on_lookahead = true}, RECOVER(),
-  [5] = {.count = 2, .reusable = true, .depends_on_lookahead = true}, SHIFT_EXTRA(), RECOVER(),
-  [8] = {.count = 1, .reusable = true, .depends_on_lookahead = true}, SHIFT(2),
-  [10] = {.count = 1, .reusable = true, .depends_on_lookahead = true}, SHIFT_EXTRA(),
-  [12] = {.count = 1, .reusable = true, .depends_on_lookahead = false}, REDUCE(sym_identifier, 1),
+  [3] = {.count = 2, .reusable = true, .depends_on_lookahead = true}, SHIFT_EXTRA(), RECOVER(),
+  [6] = {.count = 1, .reusable = false, .depends_on_lookahead = false}, SHIFT(2),
+  [8] = {.count = 1, .reusable = false, .depends_on_lookahead = false}, SHIFT_EXTRA(),
+  [10] = {.count = 1, .reusable = true, .depends_on_lookahead = false}, REDUCE(sym_space, 1),
+  [12] = {.count = 1, .reusable = true, .depends_on_lookahead = true}, SHIFT_EXTRA(),
   [14] = {.count = 1, .reusable = true, .depends_on_lookahead = false}, ACCEPT_INPUT(),
 };
 
