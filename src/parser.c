@@ -7,23 +7,33 @@
 
 #define LANGUAGE_VERSION 6
 #define STATE_COUNT 4
-#define SYMBOL_COUNT 5
+#define SYMBOL_COUNT 10
 #define ALIAS_COUNT 0
-#define TOKEN_COUNT 4
+#define TOKEN_COUNT 9
 #define EXTERNAL_TOKEN_COUNT 0
 #define MAX_ALIAS_SEQUENCE_LENGTH 0
 
 enum {
   aux_sym_SLASH_LBRACK_BSLASHt_RBRACK_SLASH = 1,
   sym_mathsymbol = 2,
-  sym_comment = 3,
-  sym_space = 4,
+  aux_sym_SLASH0_LBRACKxX_RBRACK_SLASH = 3,
+  anon_sym_pt = 4,
+  anon_sym_mm = 5,
+  anon_sym_cm = 6,
+  anon_sym_inch = 7,
+  sym_comment = 8,
+  sym_space = 9,
 };
 
 static const char *ts_symbol_names[] = {
   [ts_builtin_sym_end] = "END",
   [aux_sym_SLASH_LBRACK_BSLASHt_RBRACK_SLASH] = "/[ \\t]/",
   [sym_mathsymbol] = "mathsymbol",
+  [aux_sym_SLASH0_LBRACKxX_RBRACK_SLASH] = "/0[xX]/",
+  [anon_sym_pt] = "pt",
+  [anon_sym_mm] = "mm",
+  [anon_sym_cm] = "cm",
+  [anon_sym_inch] = "inch",
   [sym_comment] = "comment",
   [sym_space] = "space",
 };
@@ -40,6 +50,26 @@ static const TSSymbolMetadata ts_symbol_metadata[] = {
   [sym_mathsymbol] = {
     .visible = true,
     .named = true,
+  },
+  [aux_sym_SLASH0_LBRACKxX_RBRACK_SLASH] = {
+    .visible = false,
+    .named = false,
+  },
+  [anon_sym_pt] = {
+    .visible = true,
+    .named = false,
+  },
+  [anon_sym_mm] = {
+    .visible = true,
+    .named = false,
+  },
+  [anon_sym_cm] = {
+    .visible = true,
+    .named = false,
+  },
+  [anon_sym_inch] = {
+    .visible = true,
+    .named = false,
   },
   [sym_comment] = {
     .visible = true,
@@ -59,6 +89,16 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
         ADVANCE(1);
       if (lookahead == '%')
         ADVANCE(2);
+      if (lookahead == '0')
+        ADVANCE(3);
+      if (lookahead == 'c')
+        ADVANCE(5);
+      if (lookahead == 'i')
+        ADVANCE(7);
+      if (lookahead == 'm')
+        ADVANCE(11);
+      if (lookahead == 'p')
+        ADVANCE(13);
       if (lookahead == '\t' ||
           lookahead == '\n' ||
           lookahead == '\r' ||
@@ -70,7 +110,7 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
           ('<' <= lookahead && lookahead <= '?') ||
           lookahead == '`' ||
           lookahead == '~')
-        ADVANCE(3);
+        ADVANCE(15);
       END_STATE();
     case 1:
       ACCEPT_TOKEN(ts_builtin_sym_end);
@@ -82,22 +122,66 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
         ADVANCE(2);
       END_STATE();
     case 3:
-      ACCEPT_TOKEN(sym_mathsymbol);
+      if (lookahead == 'X' ||
+          lookahead == 'x')
+        ADVANCE(4);
       END_STATE();
     case 4:
+      ACCEPT_TOKEN(aux_sym_SLASH0_LBRACKxX_RBRACK_SLASH);
+      END_STATE();
+    case 5:
+      if (lookahead == 'm')
+        ADVANCE(6);
+      END_STATE();
+    case 6:
+      ACCEPT_TOKEN(anon_sym_cm);
+      END_STATE();
+    case 7:
+      if (lookahead == 'n')
+        ADVANCE(8);
+      END_STATE();
+    case 8:
+      if (lookahead == 'c')
+        ADVANCE(9);
+      END_STATE();
+    case 9:
+      if (lookahead == 'h')
+        ADVANCE(10);
+      END_STATE();
+    case 10:
+      ACCEPT_TOKEN(anon_sym_inch);
+      END_STATE();
+    case 11:
+      if (lookahead == 'm')
+        ADVANCE(12);
+      END_STATE();
+    case 12:
+      ACCEPT_TOKEN(anon_sym_mm);
+      END_STATE();
+    case 13:
+      if (lookahead == 't')
+        ADVANCE(14);
+      END_STATE();
+    case 14:
+      ACCEPT_TOKEN(anon_sym_pt);
+      END_STATE();
+    case 15:
+      ACCEPT_TOKEN(sym_mathsymbol);
+      END_STATE();
+    case 16:
       if (lookahead == '%')
         ADVANCE(2);
       if (lookahead == '\t' ||
           lookahead == ' ')
-        ADVANCE(5);
+        ADVANCE(17);
       if (lookahead == '\n' ||
           lookahead == '\r')
-        SKIP(4);
+        SKIP(16);
       END_STATE();
-    case 5:
+    case 17:
       ACCEPT_TOKEN(aux_sym_SLASH_LBRACK_BSLASHt_RBRACK_SLASH);
       END_STATE();
-    case 6:
+    case 18:
       if (lookahead == 0)
         ADVANCE(1);
       if (lookahead == '%')
@@ -106,7 +190,7 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
           lookahead == '\n' ||
           lookahead == '\r' ||
           lookahead == ' ')
-        SKIP(6);
+        SKIP(18);
       END_STATE();
     default:
       return false;
@@ -115,15 +199,20 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
 
 static TSLexMode ts_lex_modes[STATE_COUNT] = {
   [0] = {.lex_state = 0},
-  [1] = {.lex_state = 4},
-  [2] = {.lex_state = 6},
-  [3] = {.lex_state = 6},
+  [1] = {.lex_state = 16},
+  [2] = {.lex_state = 18},
+  [3] = {.lex_state = 18},
 };
 
 static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
   [0] = {
     [ts_builtin_sym_end] = ACTIONS(1),
     [sym_mathsymbol] = ACTIONS(1),
+    [aux_sym_SLASH0_LBRACKxX_RBRACK_SLASH] = ACTIONS(1),
+    [anon_sym_pt] = ACTIONS(1),
+    [anon_sym_mm] = ACTIONS(1),
+    [anon_sym_cm] = ACTIONS(1),
+    [anon_sym_inch] = ACTIONS(1),
     [sym_comment] = ACTIONS(3),
   },
   [1] = {

@@ -22,6 +22,20 @@ module.exports = grammar({
     str: $ => /[^ \t\n\r@`\\{}<>%|*$#;]/,
     mathsymbol: $ => /[-+*/:=<>~'.,?`]/,
 
+    int: $ => choice(
+      $.digit,
+      seq($.nzdigit, repeat1($.digit)),
+      seq(/0[xX]/, repeat1($.hex))
+    ),
+    float: $ => choice(
+      seq(repeat1($.digit), ".", repeat($.digit)),
+      seq(".", repeat1($.digit))
+    ),
+    length: $ => seq(
+      choice($.digit, seq($.nzdigit, repeat1($.digit)), $.float),
+      choice("pt", "mm", "cm", "inch")
+    ),
+
     comment: $ => /%.*/
   }
 });
