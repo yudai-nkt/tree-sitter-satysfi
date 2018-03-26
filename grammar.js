@@ -15,8 +15,8 @@ module.exports = grammar({
     latin: $ => choice($.small, $.capital),
     item: $ => repeat1("*"),
 
-    identifier: $ => seq($.small, repeat($.digit, $.latin, "-")),
-    constructor: $ => seq($.capital, repeat($.digit, $.latin, "-")),
+    identifier: $ => seq($.small, repeat(choice($.digit, $.latin, "-"))),
+    constructor: $ => seq($.capital, repeat(choice($.digit, $.latin, "-"))),
     symbol: $ => choice(/[ -@]/, /[[-`]/, /[{-~]/),
     opsymbol: $ => /[-+*/^&|!:=<>~'.?]/,
     str: $ => /[^ \t\n\r@`\\{}<>%|*$#;]/,
